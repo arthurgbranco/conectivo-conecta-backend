@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  conectivo-db:
+    image: mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: conectivo_conecta_db # create db by default
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+    volumes:
+      - ../data:/docker-entrypoint-initdb.d

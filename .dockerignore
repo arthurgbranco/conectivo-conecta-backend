@@ -1,0 +1,5 @@
+.dockerignore
+**/.DS_Store
+**/desktop.ini
+.git
+node_modules/
