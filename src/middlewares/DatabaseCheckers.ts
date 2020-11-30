@@ -17,20 +17,22 @@ const sql = mysql.createPool({
 
 const queryString = `CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME};
 
+const queryString = `CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME};
+
 USE ${DATABASE_NAME};
 
 CREATE TABLE IF NOT EXISTS \`conta\` (
-  \`email\` varchar(30) NOT NULL,
+  \`email\` varchar(50) NOT NULL,
   \`senha\` varchar(80) NOT NULL,
   PRIMARY KEY (\`email\`)
 );
 
 CREATE TABLE IF NOT EXISTS \`empresa\` (
-\`cnpj\` char(14) NOT NULL,
+\`cnpj\` char(20) NOT NULL,
 \`razaoSocial\` varchar(50) NOT NULL,
-\`site\` char(30) DEFAULT NULL,
-\`telefoneDeContato\` char(15) DEFAULT NULL,
-\`email\` varchar(30) NOT NULL,
+\`site\` char(50) DEFAULT NULL,
+\`telefoneDeContato\` char(20) DEFAULT NULL,
+\`email\` varchar(50) NOT NULL,
 \`eValido\` tinyint(1) DEFAULT 0,
 \`caminhoParaImagem\` varchar(1024) DEFAULT NULL,
 PRIMARY KEY (\`cnpj\`),
@@ -39,25 +41,54 @@ CONSTRAINT \`fk_empresa_conta\` FOREIGN KEY (\`email\`) REFERENCES \`conta\` (\`
 );
 
 CREATE TABLE IF NOT EXISTS \`trabalhador\` (
-  \`cpf\` varchar(12) NOT NULL,
-  \`nomeCompleto\` varchar(45) DEFAULT NULL,
-  \`nomeCompletoMae\` varchar(45) DEFAULT NULL,
+  \`cpf\` varchar(20) NOT NULL,
+  \`nomeCompleto\` varchar(50) DEFAULT NULL,
+  \`nomeCompletoMae\` varchar(50) DEFAULT NULL,
   \`numeroDeRG\` int DEFAULT '0',
-  \`dataDeNascimento\` varchar(45) DEFAULT NULL,
-  \`localDeNascimento\` varchar(30) DEFAULT NULL,
+  \`dataDeNascimento\` varchar(20) DEFAULT NULL,
+  \`localDeNascimento\` varchar(50) DEFAULT NULL,
   \`estadoCivil\` varchar(20) DEFAULT NULL,
   \`numeroDeFilhos\` int DEFAULT NULL,
-  \`telefoneDeContato\` varchar(15) DEFAULT NULL,
+  \`telefoneDeContato\` varchar(20) DEFAULT NULL,
   \`endereco\` varchar(60) DEFAULT NULL,
   \`escolaridade\` varchar(30) DEFAULT NULL,
   \`objetivoProfissional\` longtext,
   \`resumoProfissional\` longtext,
-  \`email\` varchar(30) NOT NULL,
+  \`email\` varchar(40) NOT NULL,
   \`caminhoParaImagem\` varchar(1024) DEFAULT NULL,
   \`caminhoParaCurriculo\` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (\`cpf\`),
   KEY \`fk_trabalhador_conta_idx\` (\`email\`),
   CONSTRAINT \`fk_trabalhador_conta\` FOREIGN KEY (\`email\`) REFERENCES \`conta\` (\`email\`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS \`vaga\` (
+  \`cnpjDaEmpresa\` CHAR(20) DEFAULT NULL,
+  \`id\` INT NOT NULL AUTO_INCREMENT,
+  \`titulo\` VARCHAR(50) NOT NULL,
+  \`descricao\` VARCHAR(1024) NOT NULL,
+  \`salario\` FLOAT NOT NULL,
+  \`categoria\` VARCHAR(30),
+  \`localizacao\` VARCHAR(30),
+  PRIMARY KEY (\`id\`),
+  KEY \`fk_vaga_empresa_idx\` (\`cnpjDaEmpresa\`),
+  CONSTRAINT \`fk_vaga_empresa\` FOREIGN KEY (\`cnpjDaEmpresa\`)
+      REFERENCES \`empresa\` (\`cnpj\`)
+      ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS \`inscricaoVagaTrabalhador\` (
+  \`idDaVaga\` INT NOT NULL,
+  \`cpfTrabalhador\` VARCHAR(20) NOT NULL,
+  PRIMARY KEY (\`idDaVaga\` , \`cpfTrabalhador\`),
+  KEY \`fk_inscricao_vaga_idx\` (\`idDaVaga\`),
+  KEY \`fk_inscricao_trabalhador_idx\` (\`cpfTrabalhador\`),
+  CONSTRAINT \`fk_inscricao_vaga\` FOREIGN KEY (\`idDaVaga\`)
+      REFERENCES \`vaga\` (\`id\`)
+      ON DELETE CASCADE,
+  CONSTRAINT \`fk_inscricao_trabalhador\` FOREIGN KEY (\`cpfTrabalhador\`)
+      REFERENCES \`trabalhador\` (\`cpf\`)
+      ON DELETE CASCADE
 );`
 
 /**
